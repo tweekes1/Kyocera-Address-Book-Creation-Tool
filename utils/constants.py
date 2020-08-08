@@ -6,4 +6,4 @@ DEFAULT_DATABASE = "address_book_database.db"
 SMB_LOGIN_NAME = ""
 SMB_LOGIN_PASSWD = ""
 SMB_HOSTNAME = ""
-SMB_PORT = 9999
+SMB_PORT = "9999"

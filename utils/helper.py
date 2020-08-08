@@ -18,9 +18,14 @@ def generate_xml(user_data, filename="Address_book"):
     smb_otk = []
 
     for i in range(len(user_data)): 
+        display_name = str(user_data[i][1]).title()
+        email_address = str(user_data[i][3]).title()
+        smb_path = str(user_data[i][4])
+        #aonther_info = str(user_data[i][5])
+
         address_book.append(
-            Element('Item', Type="Contact", Id=str(i+1), DisplayName=str(user_data[i][1]), SendKeisyou="0", DisplayNameKana=str(user_data[i][1]),\
-                MailAddress=str(user_data[i][3]), SendCorpName="", SendPostName="", SmbHostName=constants.SMB_HOSTNAME, SmbPath=str(user_data[i][4]),\
+            Element('Item', Type="Contact", Id=str(i+1), DisplayName= display_name, SendKeisyou="0", DisplayNameKana= display_name,\
+                MailAddress=email_address, SendCorpName="", SendPostName="", SmbHostName=constants.SMB_HOSTNAME, SmbPath=smb_path,\
                 SmbLoginPasswd=constants.SMB_LOGIN_PASSWD, SmbLoginName=constants.SMB_LOGIN_NAME, SmbPort=constants.SMB_PORT, FtpPath="", FtpHostName="", FtpLoginName="", FtpLoginPasswd="",\
                 FtpPort="21", FaxNumber="", FaxSubaddress="", FaxPassword="", FaxCommSpeed="BPS_33600", FaxECM="On", FaxEncryptKeyNumber="0", FaxEncryption="Off",\
                 FaxEncryptBoxEnabled="Off", FaxEncryptBoxID="0000", InetFAXAddr="", InetFAXMode="Simple", InetFAXResolution="3", InetFAXFileType="TIFF_MH",\
@@ -28,11 +33,11 @@ def generate_xml(user_data, filename="Address_book"):
         )
 
         email_otk.append(
-            Element('Item', Type="OneTouchKey", Id=str(i+1), DisplayName=str(user_data[i][1]), AddressId=str(i+1), AddressType="EMAIL")
+            Element('Item', Type="OneTouchKey", Id=str(i+1), DisplayName= display_name, AddressId=str(i+1), AddressType="EMAIL")
         )
 
         smb_otk.append(
-            Element("Item", Type="OneTouchKey", Id=str(i + 1 + len(user_data)), DisplayName=str(user_data[i][1]), AddressId=str(i+1), AddressType="SMB")
+            Element("Item", Type="OneTouchKey", Id=str(i + 1 + len(user_data)), DisplayName= display_name, AddressId=str(i+1), AddressType="SMB")
         )   
 
     top.extend(address_book)

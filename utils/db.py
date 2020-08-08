@@ -12,6 +12,8 @@ class Database:
         self.current_table = constants.DEFAULT_TABLE
 
         self.create_table(constants.DEFAULT_TABLE)    
+        self.num_of_columns = self.get_column_count()        
+
 
     def __enter__(self):
         return self
@@ -173,3 +175,16 @@ class Database:
         except KeyError:
             print("File must be a CSV, Check csv column headers.")
             print("Headers should be NAME,USERNAME,EMAIL,SMB_PATH")
+
+    def get_column_count(self):
+        sql = f''' PRAGMA table_info({self.current_table}) '''
+
+        try: 
+            self.cursor.execute(sql) 
+            col_count = len(self.cursor.fetchall())
+
+            return col_count
+        except Error as e:
+            print(e)
+            return
+            
