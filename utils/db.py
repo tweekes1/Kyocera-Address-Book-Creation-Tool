@@ -14,7 +14,6 @@ class Database:
         self.create_table(constants.DEFAULT_TABLE)    
         self.num_of_columns = self.get_column_count()        
 
-
     def __enter__(self):
         return self
 
@@ -26,7 +25,8 @@ class Database:
         return self.db_connection.commit()
 
     def user_exists(self, username, show_info=False):
-        sql = f''' SELECT * FROM {self.current_table} WHERE username = ? ''' 
+        sql = f''' SELECT * FROM {self.current_table} 
+                   WHERE username = ? ''' 
 
         try: 
             self.cursor.execute(sql, (username,))
@@ -72,7 +72,7 @@ class Database:
 
     def delete_user(self, username):
         sql = f''' DELETE FROM {self.current_table} 
-                  WHERE username = ? '''
+                   WHERE username = ? '''
         
         try: 
             self.cursor.execute(sql, (username,))
@@ -83,7 +83,7 @@ class Database:
 
     def table_exists(self, table_name):
         sql = f''' SELECT count(name) FROM sqlite_master 
-                  WHERE type='table' and name='{table_name}' '''
+                   WHERE type='table' and name='{table_name}' '''
                 
         self.cursor.execute(sql)
         
@@ -187,4 +187,3 @@ class Database:
         except Error as e:
             print(e)
             return
-            
