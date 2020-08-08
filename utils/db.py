@@ -54,6 +54,17 @@ class Database:
             print(e)
             return 
 
+    def get_all_users(self):
+        sql = f''' SELECT * FROM '{self.current_table}' '''
+
+        try:
+            self.cursor.execute(sql)
+            return self.cursor.fetchall()
+        except Error as e:
+            print(e)
+            return
+
+
     def delete_user(self, username):
         sql = f'''DELETE FROM {self.current_table} WHERE username=?'''
         
@@ -123,8 +134,9 @@ class Database:
         print(f'{"ID":^5} | {"NAME":^25} | {"USERNAME":^15} | {"EMAIL":^20} | {"PATH":^15}')
         for user in users:
             print(rf'{user[0]:^5} | {user[1]:^25} | {user[2]:^15} | {user[3]:^20} | {user[4]:^15}')
-
+        
         print()
+
     def load_csv(self, filename):
         try: 
             with open(filename) as users_file: 
