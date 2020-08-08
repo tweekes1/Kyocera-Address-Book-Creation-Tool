@@ -20,6 +20,33 @@ class Database:
     def commit(self):
         return self.db_connection.commit()
 
+    def user_exists(self, username):
+        sql = f''' SELECT * FROM {self.current_table} WHERE username=?''' 
+
+        self.cursor.execute(sql, (username,))
+        row = self.cursor.fetchone()
+
+        if row == None:
+            return False
+
+        return True
+
+    def insert_user(self, user_info):
+        sql = f'''INSERT INTO 'test_table' (name, username, email, smb_path)
+                  VALUES (?, ?, ?, ?)'''
+        
+        if self.user_exists(user_info[1]):
+            print(f"User with the username '{user_info[1]}' already exists.")
+            return
+
+        try: 
+            self.cursor.execute(sql, user_info)
+            print(f"{user_info[0]} has been added successfully.")
+        except Error as e:
+            print(e)
+        
+        self.commit()
+
     def table_exists(self, table_name):
         sql = f'''SELECT count(name) FROM sqlite_master WHERE type='table' and name={table_name} '''
 
@@ -35,7 +62,7 @@ class Database:
             name text NOT NULL,
             username text NOT NULL,
             email text NOT NULL,
-            smb_folder_path text NOT NULL
+            smb_path text NOT NULL
         ); '''
         
         if self.table_exists(table_name):
@@ -49,32 +76,8 @@ class Database:
         except Error as e:
             print(e)
     
-    def user_exists(self, username):
-        sql = f''' SELECT * FROM {self.current_table} WHERE username=?''' 
-
-        self.cursor.execute(sql, (username,))
-        row = self.cursor.fetchone()
-
-        if row == None:
-            return False
-
-        return True
-
-    def insert_user(self, user_info):
-        sql = f'''INSERT INTO 'test_table' (name, username, email, smb_folder_path)
-                  VALUES (?, ?, ?, ?)'''
-        
-        if self.user_exists(user_info[1]):
-            print(f"User with the username '{user_info[1]}' already exists.")
-            return
-
-        try: 
-            self.cursor.execute(sql, user_info)
-            print(f"{user_info[0]} has been added successfully.")
-        except Error as e:
-            print(e)
-        
-        self.commit()
+    def switch_table(self, table_name):
+        self.current_table = table_name 
 
     def display_table(self): 
         print(f"Current table: {self.current_table}")
@@ -84,9 +87,20 @@ class Database:
         users = self.cursor.fetchall()
 
         if len(users) == 0:
-            print(f"{self.current_table} is empty")
+            print(f"'{self.current_table}' is empty")
             return
         
         print(f'{"ID":^5} | {"NAME":^25} | {"USERNAME":^15} | {"EMAIL":^20} | {"PATH":^15}')
         for user in users:
             print(rf'{user[0]:^5} | {user[1]:^25} | {user[2]:^15} | {user[3]:^20} | {user[4]:^15}')
+
+    def load_csv(self, filename):
+        try: 
+            with open(filename) as users_file: 
+                reader = csv.DictReader(users_file)
+
+                for row in reader:
+                    self.insert_user((row['NAME'], row['USERNAME'], row['EMAIL'], row['SMB_PATH']))
+        
+        except FileNotFoundError:    
+            print(rf'{filename} not found')
