@@ -1,3 +1,4 @@
+import os
 import constants
 
 from datetime import date
@@ -9,9 +10,9 @@ def beautify_xml(xml_string):
 
     return minidom.parseString(rough_string).toprettyxml()
 
-def generate_xml(user_data, filename="Address_book"):
-    top = Element('DeviceAddressBook_v5_2')
-    top.append(Comment('Main Address Book'))
+def generate_xml(user_data, filename):
+    xml_string = Element('DeviceAddressBook_v5_2')
+    xml_string.append(Comment('Main Address Book'))
 
     address_book = []
     email_otk = []
@@ -40,15 +41,18 @@ def generate_xml(user_data, filename="Address_book"):
             Element("Item", Type="OneTouchKey", Id=str(i + 1 + len(user_data)), DisplayName= display_name, AddressId=str(i+1), AddressType="SMB")
         )   
 
-    top.extend(address_book)
+    xml_string.extend(address_book)
 
-    top.append(Comment('Email OneTouch Keys'))
-    top.extend(email_otk)
+    xml_string.append(Comment('Email OneTouch Keys'))
+    xml_string.extend(email_otk)
 
-    top.append(Comment('SMB OneTouch Keys'))
-    top.extend(smb_otk)
+    xml_string.append(Comment('SMB OneTouch Keys'))
+    xml_string.extend(smb_otk)
     
-    filename = filename + f" {date.today()}.xml"
-    with open(filename, 'w') as f:
-        f.write(beautify_xml(top))
-    
+    if not os.path.exists(constants.ADDRESS_BOOK_DIR): 
+        os.mkdir(constants.ADDRESS_BOOK_DIR)
+
+    filename = f"{filename} {date.today()}.xml"
+    with open(os.path.join(constants.ADDRESS_BOOK_DIR, filename), 'w') as file:
+        file.write(beautify_xml(xml_string))
+        file.close()
