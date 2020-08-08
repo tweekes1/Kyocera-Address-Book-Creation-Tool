@@ -1,3 +1,4 @@
+import constants
 import csv
 import sqlite3
 
@@ -5,11 +6,13 @@ from sqlite3 import Error
 
 class Database: 
 
-    def __init__(self, db_name='address_book_database'):
+    def __init__(self, db_name=constants.DEFAULT_DATABASE):
         self.db_connection = sqlite3.connect(db_name)
         self.cursor = self.db_connection.cursor()
-        self.current_table = ""
-                
+        self.current_table = constants.DEFAULT_TABLE
+
+        self.create_table(constants.DEFAULT_TABLE)    
+
     def __enter__(self):
         return self
 
@@ -23,8 +26,12 @@ class Database:
     def user_exists(self, username):
         sql = f''' SELECT * FROM {self.current_table} WHERE username=?''' 
 
-        self.cursor.execute(sql, (username,))
-        row = self.cursor.fetchone()
+        try: 
+            self.cursor.execute(sql, (username,))
+            row = self.cursor.fetchone()
+        except Error as e:
+            print(e)
+            return 
 
         if row == None:
             return False
@@ -32,7 +39,7 @@ class Database:
         return True
 
     def insert_user(self, user_info):
-        sql = f'''INSERT INTO 'test_table' (name, username, email, smb_path)
+        sql = f'''INSERT INTO '{self.current_table}' (name, username, email, smb_path)
                   VALUES (?, ?, ?, ?)'''
         
         if self.user_exists(user_info[1]):
@@ -42,21 +49,32 @@ class Database:
         try: 
             self.cursor.execute(sql, user_info)
             print(f"{user_info[0]} has been added successfully.")
+            self.commit()
         except Error as e:
             print(e)
+            return 
+
+    def delete_user(self, username):
+        sql = f'''DELETE FROM {self.current_table} WHERE username=?'''
         
-        self.commit()
+        try: 
+            self.cursor.execute(sql, (username,))
+            self.commit()
+        except Error as e:
+            print(e)
+            return
 
     def table_exists(self, table_name):
-        sql = f'''SELECT count(name) FROM sqlite_master WHERE type='table' and name={table_name} '''
+        sql = f'''SELECT count(name) FROM sqlite_master WHERE type='table' and name='{table_name}' '''
+                
+        self.cursor.execute(sql)
+        
+        if self.cursor.fetchone()[0]:
+            return True
 
+        return False
 
-        if self.cursor.fetchone() == None:
-            return False
-
-        return True
-
-    def create_table(self, table_name="main_address_table"):
+    def create_table(self, table_name):
         sql = f''' CREATE TABLE IF NOT EXISTS {table_name}(
             id integer PRIMARY KEY AUTOINCREMENT,
             name text NOT NULL,
@@ -76,11 +94,23 @@ class Database:
         except Error as e:
             print(e)
     
+    def drop_table(self, table_name):
+        sql = f'''DROP TABLE {table_name}'''
+
+        if table_name == constants.DEFAULT_TABLE:
+            print("You cannot delete this table.")
+            return
+        
+        try: 
+            self.cursor.execute(sql) 
+            self.commit()
+        except Error as e:
+            print(e)
+        
     def switch_table(self, table_name):
         self.current_table = table_name 
 
     def display_table(self): 
-        print(f"Current table: {self.current_table}")
         sql = f''' SELECT * FROM {self.current_table} '''
 
         self.cursor.execute(sql)
@@ -94,6 +124,7 @@ class Database:
         for user in users:
             print(rf'{user[0]:^5} | {user[1]:^25} | {user[2]:^15} | {user[3]:^20} | {user[4]:^15}')
 
+        print()
     def load_csv(self, filename):
         try: 
             with open(filename) as users_file: 
@@ -101,6 +132,9 @@ class Database:
 
                 for row in reader:
                     self.insert_user((row['NAME'], row['USERNAME'], row['EMAIL'], row['SMB_PATH']))
-        
+
         except FileNotFoundError:    
             print(rf'{filename} not found')
+        except KeyError:
+            print("File must be a CSV, Check csv column headers.")
+            print("Headers should be NAME,USERNAME,EMAIL,SMB_PATH")
