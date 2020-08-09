@@ -53,12 +53,12 @@ class Database:
             return
 
         if self.user_exists(user_info[1]):
-            print(f"[?] User with the username '{user_info[1]}' already exists.\n")
+            print(f"[-] User with the username '{user_info[1]}' already exists.\n")
             return
 
         try: 
             self.cursor.execute(sql, user_info)
-            print(f"[+] {user_info[0]} added successfully.\n")
+            print(f"[+] {user_info[0]} added successfully.")
             self.commit()
         except Error as e:
             print(f"[-] {e}\n")
@@ -112,8 +112,9 @@ class Database:
             self.cursor.execute(sql)
             print(f"[+] '{table_name}' created successfully.\n")
             self.current_table = table_name
-        except Error as e:
-            print(f"[-] {e}\n")
+        except Error:
+            print(f"[-] Cannot create table '{table_name}' ")
+            print(f"[-] Table name cannot spaces or special characters.")
     
     def drop_table(self, table_name):
         sql = f''' DROP TABLE {table_name} '''
@@ -175,13 +176,32 @@ class Database:
         
         print()
 
+    def get_tables(self):
+        sql = f''' SELECT name FROM sqlite_master
+                   WHERE type = 'table' AND  name != 'sqlite_sequence' '''
+        
+        try:   
+            self.cursor.execute(sql) 
+            tables = self.cursor.fetchall()
+            print(f'\n{"TABLE_NAME":^25} | {"# OF RECORDS":^5}')
+            for table in tables:
+                second_sql = f''' SELECT COUNT(*) FROM {table[0]} '''
+                self.cursor.execute(second_sql)
+                count = self.cursor.fetchone()[0]
+                print(f'{table[0]:^25} | {count:^9}')
+            print()        
+        except Error as e:
+            print(f"[-] {e}\n")
+            return
+
     def load_csv(self, filename):
         try: 
             with open(filename) as users_file: 
                 reader = csv.DictReader(users_file)
 
                 for row in reader:
-                    self.insert_user((row["NAME"], row["USERNAME"], row["EMAIL"], row["SMB_PATH"]))
+                    self.insert_user((row["NAME"].title(), row["USERNAME"], row["EMAIL"], row["SMB_PATH"]))
+                print()
         except FileNotFoundError:    
             print(rf'{filename} not found')
         except KeyError:

@@ -64,6 +64,25 @@ class Terminal(Cmd):
         print("[?] Switches the current table to the one specified, if it exists in the database.")
         print("[?] USAGE: switch 'TABLE_NAME'\n")
 
+    def do_create_table(self, args):
+        if len(args.split(" ")) < 1:
+            print("[?] USAGE: create_table 'TABLE_NAME'")
+            return
+        
+        self.db.create_table(args.split(' ')[0])
+        self.prompt = self.db.current_table + "> "
+
+    def help_create_table(self):
+        print("[?] Creates a new table.")
+        print("[?] create_table 'TABLE_NAME' \n")
+
+    def do_tables(self, args): 
+        self.db.get_tables()
+
+    def help_tables(self):
+        print("[?] Displays all the tables in the database.")
+        print("[?] USAGE: tables\n")
+
     def do_load(self, args):
         filename = args.split(' ')[0]
 
