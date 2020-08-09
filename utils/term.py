@@ -26,8 +26,8 @@ class Terminal(Cmd):
             self.db.insert_user(user_info)
             return
 
-        print(f"[?] User not added, {len(user_info)} args given {self.db.num_of_columns - 1} needed.")
-        print(f"[?] Params need to be separated by '|' \n")    
+        print(f"[-] User not added, {len(user_info)} args given {self.db.num_of_columns - 1} needed.")
+        print(f"[-] Params need to be separated by '|' \n")    
 
     def help_add(self):
         print("[?] Adds user into current table.")
@@ -42,14 +42,19 @@ class Terminal(Cmd):
         print("[?] Deletes user from the current table.")
         print("[?] USAGE: delete 'USERNAME'\n")
 
+    def do_wipe(self, args):
+        self.db.truncate_table()
+
+    def help_wipe(self):
+        print("[?] Wipes the current table.")
+        print("[?] USAGE: wipe \n")
+
     def do_find(self, args):
         username = args.split(' ')[0]
 
         if self.db.user_exists(username, True):
             return
         
-        print(f"[-] '{username}' does not exist.")
-
     def help_find(self):
         print("[?] Searches current table for the specified user and displays entry if found.")
         print("[?] USAGE: find 'USERNAME'\n")

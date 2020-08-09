@@ -55,3 +55,11 @@ def generate_xml(user_data, filename):
     with open(os.path.join(constants.ADDRESS_BOOK_DIR, filename), 'w') as file:
         file.write(beautify_xml(xml_string))
         file.close()
+
+def banner():
+    print("="*40)
+    print("Kyocera Address Book Creation Tool")
+    print("Enter 'help' for a list of commands")
+    print("Enter 'help' 'COMMAND NAME' for more.")
+    print("="*40)
+    print()

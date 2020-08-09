@@ -45,6 +45,8 @@ class Database:
         return True
 
     def insert_user(self, user_info):
+        user_info = [info.strip() for info in user_info]
+
         sql = f''' INSERT INTO '{self.current_table}' (name, username, email, smb_path)
                    VALUES (?, ?, ?, ?)'''
         
@@ -55,7 +57,7 @@ class Database:
         if self.user_exists(user_info[1]):
             print(f"[-] User with the username '{user_info[1]}' already exists.\n")
             return
-
+        
         try: 
             self.cursor.execute(sql, user_info)
             print(f"[+] {user_info[0]} added successfully.")
@@ -78,8 +80,17 @@ class Database:
         sql = f''' DELETE FROM {self.current_table} 
                    WHERE username = ? '''
         
+        if username == "":
+            print(f"[-] Please enter a username.\n")
+            return  
+
+        if not self.user_exists(username):
+            print(f"[-] '{username}' does not exist.")
+            return
+        
         try: 
             self.cursor.execute(sql, (username,))
+            print(f"[+] '{username}' deleted successfully.\n")
             self.commit()
         except Error as e:
             print(f"[-] {e}\n")
@@ -135,7 +146,7 @@ class Database:
         try:
             self.cursor.execute(sql)
             self.commit()
-            print(f"[+] Table wiped.\n")
+            print(f"[+] '{self.current_table}' wiped.\n")
         except Error as e:
             print(f"[-] {e}\n")
         
