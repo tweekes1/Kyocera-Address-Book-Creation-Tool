@@ -110,10 +110,10 @@ class Database:
         
         try: 
             self.cursor.execute(sql)
-            print(f"[+] '{table_name}' created successfully.")
+            print(f"[+] '{table_name}' created successfully.\n")
             self.current_table = table_name
         except Error as e:
-            print(f"[-] {e}")
+            print(f"[-] {e}\n")
     
     def drop_table(self, table_name):
         sql = f''' DROP TABLE {table_name} '''
@@ -125,6 +125,16 @@ class Database:
         try: 
             self.cursor.execute(sql) 
             self.commit()
+        except Error as e:
+            print(f"[-] {e}\n")
+
+    def truncate_table(self):
+        sql = f''' DELETE FROM {self.current_table} '''
+
+        try:
+            self.cursor.execute(sql)
+            self.commit()
+            print(f"[+] Table wiped.\n")
         except Error as e:
             print(f"[-] {e}\n")
         
