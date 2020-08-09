@@ -22,7 +22,6 @@ def generate_xml(user_data, filename):
         display_name = str(user_data[i][1]).title()
         email_address = str(user_data[i][3]).title()
         smb_path = str(user_data[i][4])
-        #aonther_info = str(user_data[i][5])
 
         address_book.append(
             Element('Item', Type="Contact", Id=str(i+1), DisplayName= display_name, SendKeisyou="0", DisplayNameKana= display_name,\
