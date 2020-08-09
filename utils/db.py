@@ -32,7 +32,7 @@ class Database:
             self.cursor.execute(sql, (username,))
             row = self.cursor.fetchone()
         except Error as e:
-            print(e)
+            print(f"[-] {e}")
             return 
 
         if row == None:
@@ -48,16 +48,20 @@ class Database:
         sql = f''' INSERT INTO '{self.current_table}' (name, username, email, smb_path)
                    VALUES (?, ?, ?, ?)'''
         
+        if user_info[0] == "" or user_info[1] == "":
+            print("[-] Name and username cannot be blank.\n")
+            return
+
         if self.user_exists(user_info[1]):
-            print(f"User with the username '{user_info[1]}' already exists.")
+            print(f"[?] User with the username '{user_info[1]}' already exists.\n")
             return
 
         try: 
             self.cursor.execute(sql, user_info)
-            print(f"{user_info[0]} has been added successfully.")
+            print(f"[+] {user_info[0]} added successfully.\n")
             self.commit()
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return 
     
     def get_all_users(self):
@@ -67,7 +71,7 @@ class Database:
             self.cursor.execute(sql)
             return self.cursor.fetchall()
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return
 
     def delete_user(self, username):
@@ -78,7 +82,7 @@ class Database:
             self.cursor.execute(sql, (username,))
             self.commit()
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return
 
     def table_exists(self, table_name):
@@ -102,28 +106,27 @@ class Database:
             ); '''
         
         if self.table_exists(table_name):
-            print(f"{table_name} table already exists.")
             return
         
         try: 
             self.cursor.execute(sql)
-            print(f"{table_name} created successfully.")
+            print(f"[+] '{table_name}' created successfully.")
             self.current_table = table_name
         except Error as e:
-            print(e)
+            print(f"[-] {e}")
     
     def drop_table(self, table_name):
         sql = f''' DROP TABLE {table_name} '''
 
         if table_name == constants.DEFAULT_TABLE or table_name == 'sqlite_sequence':
-            print("You cannot delete this table.")
+            print("[-] You cannot delete this table.\n")
             return
         
         try: 
             self.cursor.execute(sql) 
             self.commit()
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
         
     def switch_table(self, table_name=constants.DEFAULT_TABLE):
         sql = f''' SELECT name FROM sqlite_master 
@@ -139,7 +142,7 @@ class Database:
 
             return True
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return False
 
     def display_table(self): 
@@ -149,16 +152,16 @@ class Database:
             self.cursor.execute(sql)
             users = self.cursor.fetchall()
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return 
 
         if len(users) == 0:
-            print(f"'{self.current_table}' is empty")
+            print(f"[-] '{self.current_table}' is empty\n")
             return
         
-        print(f'{"ID":^5} | {"NAME":^25} | {"USERNAME":^15} | {"EMAIL":^20} | {"SMB_PATH":^15}')
+        print(f'{"ID":^5} | {"NAME":^25} | {"USERNAME":^15} | {"EMAIL":^30} | {"SMB_PATH":^15}')
         for user in users:
-            print(rf'{user[0]:^5} | {user[1]:^25} | {user[2]:^15} | {user[3]:^20} | {user[4]:^15}')
+            print(rf'{user[0]:^5} | {user[1]:^25} | {user[2]:^15} | {user[3]:^30} | {user[4]:^15}')
         
         print()
 
@@ -168,13 +171,12 @@ class Database:
                 reader = csv.DictReader(users_file)
 
                 for row in reader:
-                    self.insert_user((row['NAME'], row['USERNAME'], row['EMAIL'], row['SMB_PATH']))
-
+                    self.insert_user((row["NAME"], row["USERNAME"], row["EMAIL"], row["SMB_PATH"]))
         except FileNotFoundError:    
             print(rf'{filename} not found')
         except KeyError:
-            print("File must be a CSV, Check csv column headers.")
-            print("Headers should be NAME,USERNAME,EMAIL,SMB_PATH")
+            print("[-] File must be a CSV, Check csv column headers.")
+            print("[-] Headers should be NAME,USERNAME,EMAIL,SMB_PATH\n")
 
     def get_column_count(self):
         sql = f''' PRAGMA table_info({self.current_table}) '''
@@ -185,5 +187,5 @@ class Database:
 
             return col_count
         except Error as e:
-            print(e)
+            print(f"[-] {e}\n")
             return
