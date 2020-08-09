@@ -41,7 +41,8 @@ class Database:
         if show_info:
             print(f'{"ID":^5} | {"NAME":^25} | {"USERNAME":^15} | {"EMAIL":^20} | {"SMB_PATH":^15}')
             print(rf'{row[0]:^5} | {row[1]:^25} | {row[2]:^15} | {row[3]:^20} | {row[4]:^15}')
-        
+            print()
+            
         return True
 
     def insert_user(self, user_info):
