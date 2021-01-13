@@ -1,14 +1,11 @@
 # Kyocera Address Book Creation Tool
 
-Python3 tool that I re-wrote for my team to automate the creation
+A Python3 tool that I re-wrote to automate the creation
 of address books specifically for Kyocera Printer and Scanners. The tool
 does not utilize any special technology created by Kyocera, I was able to 
 see how the scanners utilized xml files to populate their address books and
 created a tool to allow for QoL changes and persistence using a lightweight
 sqlite database.
-
-I have written the tool in a way that allows for easy changes. In its current state the tool was
-meant to be used at the CLI but can be modified for to suite other needs.
 
 ## Prerequistes
 
